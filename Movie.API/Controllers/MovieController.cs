@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Movie.API.Data;
 using Movie.API.Models;
 using Movie.API.Models.Dto;
@@ -30,6 +31,23 @@ namespace Movie.API.Controllers
             var result = await _context.SaveChangesAsync() >0;
             if (!result) return BadRequest("Could not save changes to Movie!");
             return CreatedAtAction(nameof(addMovie), new { movie.Id }, movieDTO);
+        }
+
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> deleteMovie(int id)
+        {
+            var movie =   await _context.Movies.FirstOrDefaultAsync(m=>m.Id == id);
+
+            if (movie == null) return BadRequest("Movie not found!");
+
+            _context.Movies.Remove(movie);
+
+           var result= await _context.SaveChangesAsync() > 0;
+
+            if (!result) return BadRequest("Could not delete the movie!");
+
+            return Ok("Movie Deleted Successfully!");
         }
     }
 }
